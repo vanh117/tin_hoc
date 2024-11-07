@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Am I Game</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="star2.css">
+    <script src="./js/responsive.js"></script>
+    <link rel="stylesheet" href="./responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .game-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        #hint {
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        
+        #guess {
+            padding: 10px;
+            width: 200px;
+        }
+        
+        #submit, #hint-btn {
+            margin: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="header">
+
+        <nav class="nav" id="navbar">
+            <div class="icon" onclick="myFunction()"><img src="./images/menu-hidden-responsive-icon.png" alt=""
+                    style="width: 100%;height: 100%;">
+            </div>
+            <ul>
+
+                <li><a href="./index.html">Trang chủ</a></li>
+                <li><a href="./dan.html">Liverpool</a></li>
+                <li><a href="./nade.html">Real Madrid</a></li>
+                <li><a href="./sung.html">Manchester United</a></li>
+                <li><a href="./game.html" style="font-weight: bold;">Game</a></li>
+
+            </ul>
+        </nav>
+    </div>
+    <br>
+
+    <div class="game-container">
+        <h1>Who Am I?</h1>
+        <div id="hint"></div>
+        <input type="text" id="guess" placeholder="Type your guess here...">
+        <button id="submit">Submit Guess</button>
+        <button id="hint-btn">Get Hint</button>
+
+        <div id="message"></div>
+        <div id="score">Score: <span id="score-value">0</span></div>
+    </div>
+    <script>
+
+        const hints = [
+        { answer: "Albert Einstein", hints: ["He developed the theory of relativity.", "He was a theoretical physicist.", "He was awarded the Nobel Prize in Physics in 1921."] },
+        { answer: "Lion", hints: ["Known as the king of the jungle.", "Lives in prides.", "Has a mane."] },
+        { answer: "Eiffel Tower", hints: ["A famous landmark in Paris.", "It was built in 1889.", "It is made of iron and stands tall."] },
+        { answer: "Basketball", hints: ["A popular sport worldwide.", "Played on a court.", "Involves dribbling a ball and shooting hoops."] },
+        { answer: "Shakespeare", hints: ["An English playwright and poet.", "Famous for works like 'Hamlet' and 'Romeo and Juliet'.", "Lived during the Elizabethan era."] },
+        { answer: "The Moon", hints: ["It orbits the Earth.", "It has phases like full and crescent.", "Astronauts landed on it in 1969."] },
+        { answer: "Python", hints: ["A popular programming language.", "Known for simplicity and readability.", "Used in web development, data science, and AI."] },
+        { answer: "J.K. Rowling", hints: ["An author known for a popular book series.", "Her protagonist has a lightning bolt scar.", "She wrote the Harry Potter series."] },
+        { answer: "Mount Everest", hints: ["The highest mountain on Earth.", "Located in the Himalayas.", "Reaches over 29,000 feet high."] },
+        { answer: "Soccer", hints: ["A sport with 11 players per team.", "Played with a round ball.", "Most popular sport in the world."] },
+        { answer: "Great Wall of China", hints: ["A famous structure visible from space.", "It stretches thousands of miles.", "Built to protect against invasions."] }
+    ];
+    
+    // Add more characters or objects as needed
+
+
+let currentHintIndex = 0;
+let currentHints = [];
+let score = 0;
+let correctAnswer = "";  // Store correct answer here
+
+document.getElementById("hint-btn").addEventListener("click", showHint);
+document.getElementById("submit").addEventListener("click", checkGuess);
+
+function startGame() {
+    const randomIndex = Math.floor(Math.random() * hints.length);
+    const selectedHint = hints[randomIndex];
+    currentHints = selectedHint.hints;
+    correctAnswer = selectedHint.answer; // Store correct answer here
+    currentHintIndex = 0;
+    score = document.getElementById("score-value").innerText;
+    updateHint();
+    updateScore();
+}
+
+function showHint() {
+    if (currentHintIndex < currentHints.length) {
+        document.getElementById("hint").innerText = currentHints[currentHintIndex];
+        currentHintIndex++;
+    } else {
+        document.getElementById("hint").innerText = "No more hints!";
+    }
+}
+
+function checkGuess() {
+    const userGuess = document.getElementById("guess").value.trim();
+
+    if (userGuess.toLowerCase() === correctAnswer.toLowerCase()) {
+        document.getElementById("message").innerText = "Correct! The answer is " + correctAnswer + ".";
+        score += 10; // Update scoring logic as needed
+        document.getElementById("score-value").innerText = score;
+
+        startGame(); // Start a new game
+        
+    } else {
+        document.getElementById("message").innerText = "Incorrect, try again!";
+    }
+
+    updateScore();
+}
+
+function updateScore() {
+
+    
+    document.getElementById("score-value").innerText = score;
+}
+
+// Start the game on page load
+window.onload = startGame;
+
+
+    </script>
+</body>
+</html>
+

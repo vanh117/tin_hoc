@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product and Category Detection</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        #chat-box {
+            flex: 1;
+            background-color: #222;
+            padding: 20px;
+            font-size: 16px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #555;
+            margin-bottom: 20px;
+        }
+
+        /* Input field for AI Chat */
+        #input-bar {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+            border: none;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-container label {
+            margin-right: 10px;
+        }
+
+        #send-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- AI Chat Box -->
+        <div id="chat-box">
+            <p>AI Chat Box: Type product names or categories to get suggestions...</p>
+        </div>
+
+        <!-- Input field -->
+        <input type="text" id="input-bar" placeholder="Type a product or category...">
+
+        <!-- Category Checkboxes -->
+        <div class="checkbox-container">
+            <label><input type="checkbox" class="category-checkbox" value="lipstick"> Lipstick</label>
+            <label><input type="checkbox" class="category-checkbox" value="non_chemical"> Non-Chemical</label>
+            <label><input type="checkbox" class="category-checkbox" value="brown_skin"> Brown Skin</label>
+            <label><input type="checkbox" class="category-checkbox" value="chingchong_skin"> Chingchong Skin</label>
+            <label><input type="checkbox" class="category-checkbox" value="white_skin"> White Skin</label>
+            <label><input type="checkbox" class="category-checkbox" value="anti_crease"> Anti Crease</label>
+            <label><input type="checkbox" class="category-checkbox" value="soft_smooth"> Soft Smooth</label>
+            <label><input type="checkbox" class="category-checkbox" value="rehydrate"> Rehydrate</label>
+            <label><input type="checkbox" class="category-checkbox" value="lipbalm"> Lipbalm</label>
+            <label><input type="checkbox" class="category-checkbox" value="kid_friendly"> Kid Friendly</label>
+        </div>
+
+        <!-- Send Button -->
+        <button id="send-button">Send</button>
+    </div>
+
+    <script>
+        // Data from deceff.txt (categories)
+        const categories = [
+            "lipstick", "non_chemical", "brown_skin", "chingchong_skin", "white_skin",
+            "anti_crease", "soft_smooth", "rehydrate", "lipbalm", "kid_friendly"
+        ];
+
+        // Data from decprod.txt (products)
+        const products = [
+            "kem_nhung", "lua_diem", "ngoc_zero_pb", "kem_bong_thuy_tinh", "duong_gao", "lua_doll"
+        ];
+
+        // Data from data.txt (mapping)
+        const data = [
+            [1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+            [1, 1, 1, 1, 1, 0, 1, 1, 0, 0],
+            [1, 1, 1, 1, 1, 0, 1, 1, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
+            [1, 1, 1, 1, 1, 0, 1, 0, 0, 1]
+        ];
+
+        // Function to find products based on selected categories
+        function searchProducts(selectedCategories) {
+            const result = [];
+            selectedCategories.forEach(category => {
+                const categoryIndex = categories.indexOf(category);
+                if (categoryIndex !== -1) {
+                    data.forEach((productData, productIndex) => {
+                        if (productData[categoryIndex] === 1) {
+                            result.push(products[productIndex]);
+                        }
+                    });
+                }
+            });
+            return result;
+        }
+
+        // Function to get the categories of a specific product
+        function getProductCategories(product) {
+            const productIndex = products.indexOf(product);
+            if (productIndex !== -1) {
+                return categories.filter((_, categoryIndex) => data[productIndex][categoryIndex] === 1);
+            }
+            return [];
+        }
+
+        // Function to check for relevant terms and filter out the irrelevant ones
+        function checkInput(input) {
+            const lowerInput = input.toLowerCase();
+            const relevantProducts = [];
+            const relevantCategories = [];
+
+            // Check for product matches
+            products.forEach(product => {
+                if (lowerInput.includes(product.toLowerCase())) {
+                    relevantProducts.push(product);
+                    const productCategories = getProductCategories(product);
+                    relevantCategories.push(...productCategories);
+                }
+            });
+
+            // Check for category matches
+            categories.forEach(category => {
+                if (lowerInput.includes(category.toLowerCase())) {
+                    relevantCategories.push(category);
+                }
+            });
+
+            // Remove duplicates
+            const uniqueProducts = [...new Set(relevantProducts)];
+            const uniqueCategories = [...new Set(relevantCategories)];
+
+            if (uniqueProducts.length > 0) {
+                displayChatMessage(`Product: ${uniqueProducts.join(", ")}. Categories: ${uniqueCategories.join(", ")}.`);
+            } else if (uniqueCategories.length > 0) {
+                const productsInCategory = searchProducts(uniqueCategories);
+                displayChatMessage(`Category: ${uniqueCategories.join(", ")}. Products: ${productsInCategory.join(", ")}.`);
+            } else {
+                displayChatMessage("I don't know what you're saying.");
+            }
+        }
+
+        // Display results in the chat box
+        function displayChatMessage(message) {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<p>${message}</p>`;
+        }
+
+        // Event listener for "Send" button
+        document.getElementById('send-button').addEventListener('click', function () {
+            const inputValue = document.getElementById('input-bar').value.trim();
+
+            // Check if any category checkboxes are selected
+            const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(checkbox => checkbox.value);
+            if (selectedCategories.length > 0) {
+                const matchedProducts = searchProducts(selectedCategories);
+                displayChatMessage(`Selected Categories: ${selectedCategories.join(", ")}. Products: ${matchedProducts.join(", ")}`);
+            }
+
+            // Process the chat input
+            if (inputValue.length > 0) {
+                checkInput(inputValue);
+            }
+        });
+    </script>
+</body>
+</html>
